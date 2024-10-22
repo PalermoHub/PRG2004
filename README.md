@@ -8,8 +8,8 @@ Variente Generle l P.R.G. - Zonizzazione e vincoli sul territorio adeguati ai D.
 
 ## Tiles
 
-ZTO:  https://palermohub.github.io/PRG/ZTO/{z}/{x}/{y}.png
+ZTO:  https://palermohub.github.io/PRG2004/ZTO/{z}/{x}/{y}.png
 
-Vincoli areali: https://palermohub.github.io/PRG/VA/{z}/{x}/{y}.png
+Vincoli areali: https://palermohub.github.io/PRG2004/VA/{z}/{x}/{y}.png
 
-Vincoli lineari: https://palermohub.github.io/PRG/VL/{z}/{x}/{y}.png
+Vincoli lineari: https://palermohub.github.io/VL/ZTO/{z}/{x}/{y}.png
