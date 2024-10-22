@@ -12,4 +12,4 @@ ZTO:  https://palermohub.github.io/PRG2004/ZTO/{z}/{x}/{y}.png
 
 Vincoli areali: https://palermohub.github.io/PRG2004/VA/{z}/{x}/{y}.png
 
-Vincoli lineari: https://palermohub.github.io/VL/ZTO/{z}/{x}/{y}.png
+Vincoli lineari: https://palermohub.github.io/PRG2004/VL/{z}/{x}/{y}.png
