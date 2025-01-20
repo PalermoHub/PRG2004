@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leaflet.SwipeMode</title>
+    <!-- LEAFLET SOURCE    -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+          integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+            integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Leaflet SwipeMode -->
+    <script type="application/javascript"
+            src="https://unpkg.com/leaflet-swipe-mode@0.0.7/dist/leaflet.swipemode.min.js"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-swipe-mode@0.0.7/dist/leaflet.swipemode.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+
+<style>
+    html {
+        font-family: Helvetica, sans-serif;
+    }
+
+    .plugin-title {
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        margin: 10px;
+    }
+
+    .plugin-title span {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-right: 35px;
+    }
+
+    .plugin-title a {
+        text-align: center;
+        align-self: center;
+        text-decoration: none;
+    }
+	html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+    .legend-image {
+      position: absolute;
+      bottom: 25px;
+      right: 10px;
+      width: 50px;
+      height: auto;
+      z-index: 1000;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+</style>
+
+<body>
+<div id="map" style="width: 100vw; height: 100vh"></div>
+
+</body>
+
+<script>
+const map = L.map('map', {
+  maxBounds: [
+    [38.12724, 13.29253], // Coordinate del limite sud-ovest
+    [38.20812, 13.38772]  // Coordinate del limite nord-est
+  ]
+}).setView([38.1750, 13.3250], 14);
+
+  const Stamen_TonerLite = L.tileLayer('https://palermohub.github.io/PRG2004/p_uso/{z}/{x}/{y}.png', {
+    attribution: 'Piano d\'uso vigente Palermo',
+    name: 'Piano d\'uso vigente Palermo',
+    subdomains: 'abcd',
+    minZoom: 12,
+    maxZoom: 18,
+    ext: 'png'
+  }).addTo(map);
+
+  const Stamen_Watercolor = L.tileLayer('https://palermohub.github.io/PRG2004/p_fatt/{z}/{x}/{y}.png', {
+    attribution: 'Piano di Fattibilità Palermo',
+    name: 'Piano di Fattibilità Palermo',
+    subdomains: 'abcd',
+    minZoom: 12,
+    maxZoom: 18,
+    ext: 'jpg'
+  }).addTo(map);
+
+  const OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+    name: 'OpenTopoMap',
+    maxZoom: 18
+  }).addTo(map);
+
+  const Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    name: 'Esri_WorldImagery',
+  }).addTo(map);
+
+  L.Control.swipeMode(Stamen_Watercolor, Stamen_TonerLite) .addTo(map)
+  
+      // Immagine della legenda
+    const legendImage = document.createElement('img');
+    legendImage.src = 'https://palermohub.opendatasicilia.it/legend/umap/comune_pa.png';
+    legendImage.alt = 'Comune Palermo';
+    legendImage.title = 'Comune Palermo';
+    legendImage.classList.add('legend-image');
+    document.getElementById('map').appendChild(legendImage);
+</script>
+</html>

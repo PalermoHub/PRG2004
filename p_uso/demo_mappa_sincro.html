@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mappa Piano d'uso vigente e Piano di Fattibilità</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+    #map1, #map2 {
+      flex: 1;
+      height: 100%;
+      position: relative; /* Necessario per posizionare l'immagine */
+    }
+    .leaflet-control-layers {
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .legend-image {
+      position: absolute;
+      bottom: 25px;
+      right: 10px;
+      width: 50px; /* Larghezza dell'immagine */
+      height: auto; /* Mantiene le proporzioni */
+      z-index: 1000; /* Assicura che l'immagine sia sopra la mappa */
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="map1"></div>
+    <div id="map2">
+      <!-- Immagine della legenda -->
+      <img src="https://palermohub.opendatasicilia.it/legend/umap/comune_pa.png" alt="Comune Palermo" title="Comune Palermo" class="legend-image">
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.sync/L.Map.Sync.min.js"></script>
+  <script>
+    // Definisci i limiti geografici (max bounds)
+    const maxBounds = [
+      [38.12724, 13.29253], // Coordinate del limite sud-ovest
+      [38.20812, 13.38772]  // Coordinate del limite nord-est
+    ];
+
+    // Inizializza la prima mappa (Piano d'uso vigente)
+    const map1 = L.map('map1', {
+      maxBounds: maxBounds, // Imposta i limiti geografici
+      maxBoundsViscosity: 1.0 // Forza il rientro entro i limiti
+    }).setView([38.1750, 13.3250], 14); // Centrata sul Parco della Favorita
+
+    // Inizializza la seconda mappa (Piano di Fattibilità)
+    const map2 = L.map('map2', {
+      maxBounds: maxBounds, // Imposta i limiti geografici
+      maxBoundsViscosity: 1.0 // Forza il rientro entro i limiti
+    }).setView([38.1750, 13.3250], 14); // Centrata sul Parco della Favorita
+
+    // Definisci i layer di base
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    });
+
+    const googleMaps = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      attribution: '© Google Maps'
+    });
+
+    const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '© Esri Satellite'
+    });
+
+    // Aggiungi i layer di base iniziali
+    osmLayer.addTo(map1); // Mappa di sinistra usa OpenStreetMap
+    googleMaps.addTo(map2); // Mappa di destra usa Google Maps
+
+    // Definisci i layer sovrapposti
+    const pianoUsoVigente = L.tileLayer('https://palermohub.github.io/PRG2004/p_uso/{z}/{x}/{y}.png', {
+      attribution: 'Piano d\'uso vigente Palermo'
+    }).addTo(map1);
+
+    const pianoFattibilita = L.tileLayer('https://palermohub.github.io/PRG2004/p_fatt/{z}/{x}/{y}.png', {
+      attribution: 'Piano di Fattibilità Palermo'
+    }).addTo(map2);
+
+    // Crea i controlli per i layer
+    const baseLayersMap1 = {
+      "OpenStreetMap": osmLayer,
+      "Google Maps": googleMaps
+    };
+
+    const baseLayersMap2 = {
+      "Google Maps": googleMaps,
+      "Esri Satellite": esriSatellite
+    };
+
+    const overlayLayers1 = {
+      "Piano d'uso vigente": pianoUsoVigente
+    };
+
+    const overlayLayers2 = {
+      "Piano di Fattibilità": pianoFattibilita
+    };
+
+    // Aggiungi i controlli dei layer a entrambe le mappe
+    L.control.layers(baseLayersMap1, overlayLayers1, { collapsed: false }).addTo(map1);
+    L.control.layers(baseLayersMap2, overlayLayers2, { collapsed: false }).addTo(map2);
+
+    // Sincronizza le due mappe per spostamento e zoom
+    map1.sync(map2);
+    map2.sync(map1);
+
+    // Funzione per sincronizzare i layer di base in modo complementare
+    const syncComplementaryBaseLayers = (sourceMap, targetMap, sourceBaseLayers, targetBaseLayers) => {
+      sourceMap.on('baselayerchange', (event) => {
+        const selectedSourceLayer = event.layer;
+        const targetLayerKey = Object.keys(targetBaseLayers).find(key => key !== selectedSourceLayer.options.attribution);
+
+        if (targetLayerKey) {
+          targetMap.eachLayer((layer) => {
+            if (targetBaseLayers[layer.options.attribution]) {
+              targetMap.removeLayer(layer);
+            }
+          });
+          targetBaseLayers[targetLayerKey].addTo(targetMap);
+        }
+      });
+    };
+
+    // Applica la sincronizzazione complementare
+    syncComplementaryBaseLayers(map1, map2, baseLayersMap1, baseLayersMap2);
+    syncComplementaryBaseLayers(map2, map1, baseLayersMap2, baseLayersMap1);
+  </script>
+</body>
+</html>
