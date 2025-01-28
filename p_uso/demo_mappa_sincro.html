@@ -75,17 +75,22 @@
       attribution: '© OpenStreetMap contributors'
     });
 
-    const googleMaps = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-      attribution: '© Google Maps'
+    const osmLayer2 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
     });
 
     const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: '© Esri Satellite'
     });
 
+
+    const esriSatellite2 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '© Esri Satellite'
+    });
+
     // Aggiungi i layer di base iniziali
     osmLayer.addTo(map1); // Mappa di sinistra usa OpenStreetMap
-    googleMaps.addTo(map2); // Mappa di destra usa Google Maps
+    osmLayer2.addTo(map2); // Mappa di destra usa Google Maps
 
     // Definisci i layer sovrapposti
     const pianoUsoVigente = L.tileLayer('https://palermohub.github.io/PRG2004/p_uso/{z}/{x}/{y}.png', {
@@ -99,12 +104,12 @@
     // Crea i controlli per i layer
     const baseLayersMap1 = {
       "OpenStreetMap": osmLayer,
-      "Google Maps": googleMaps
+      "Esri Satellite": esriSatellite
     };
 
     const baseLayersMap2 = {
-      "Google Maps": googleMaps,
-      "Esri Satellite": esriSatellite
+      "OpenStreetMap": osmLayer2,
+      "Esri Satellite": esriSatellite2
     };
 
     const overlayLayers1 = {
