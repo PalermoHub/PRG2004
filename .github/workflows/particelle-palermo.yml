@@ -1,0 +1,60 @@
+name: Particelle Palermo (G273) -> PMTiles
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+            particelle/*.pmtiles
+          sparse-checkout-cone-mode: false
+
+      - name: Dipendenze (GDAL, remotezip, tippecanoe)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q gdal-bin libsqlite3-dev zlib1g-dev
+          pip install -q remotezip
+          git clone -q --depth 1 https://github.com/felt/tippecanoe /tmp/tippecanoe
+          make -C /tmp/tippecanoe -j"$(nproc)"
+          sudo make -C /tmp/tippecanoe install
+
+      # solo G273_PALERMO.zip (PA.zip via HTTP Range, non tutto SICILIA.zip da 1,3 GB)
+      - name: Scarica G273_PALERMO.zip ed estrai GML
+        run: python .github/scripts/scarica_g273.py .
+
+      # Foglio senza zeri iniziali, Paricella (nome usato dal frontend), via gml_id;
+      # niente comune/sez_censuaria/gml_id; output EPSG:4326
+      - name: GML -> GeoJSONL (WGS84)
+        run: |
+          ogr2ogr -f GeoJSONSeq -t_srs EPSG:4326 -nln particelle -dialect SQLite \
+            -sql "SELECT LTRIM(SUBSTR(gml_id,33,4),'0') AS Foglio, SUBSTR(gml_id,40) AS Paricella, msGeometry FROM CadastralParcel" \
+            particelle.geojsonl G273_ple.gml
+
+      - name: GeoJSONL -> PMTiles (layer particelle, z12-18)
+        run: |
+          OUT=particelle/particelle.pmtiles
+          # backup del vecchio file prima di sovrascriverlo
+          [ -f "$OUT" ] && cp "$OUT" "particelle/particelle_backup_$(date +%Y%m%d).pmtiles"
+          tippecanoe -Z 12 -z 18 -l particelle --force -o "$OUT" particelle.geojsonl
+          echo "OUT=$OUT" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: particelle-pmtiles
+          path: ${{ env.OUT }}
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add particelle/*.pmtiles
+          git commit -m "Update particelle.pmtiles (+ backup precedente)" || echo "nessuna modifica"
+          git push
