@@ -31,11 +31,11 @@ jobs:
         run: python .github/scripts/scarica_g273.py .
 
       # Foglio senza zeri iniziali, Paricella (nome usato dal frontend), via gml_id;
-      # niente comune/sez_censuaria/gml_id; output EPSG:4326
+      # fid progressivo 1..N; niente comune/sez_censuaria/gml_id; output EPSG:4326
       - name: GML -> GeoJSONL (WGS84)
         run: |
           ogr2ogr -f GeoJSONSeq -t_srs EPSG:4326 -nln particelle -dialect SQLite \
-            -sql "SELECT LTRIM(SUBSTR(gml_id,33,4),'0') AS Foglio, SUBSTR(gml_id,40) AS Paricella, msGeometry FROM CadastralParcel" \
+            -sql "SELECT rowid AS fid, LTRIM(SUBSTR(gml_id,33,4),'0') AS Foglio, SUBSTR(gml_id,40) AS Paricella, msGeometry FROM CadastralParcel" \
             particelle.geojsonl G273_ple.gml
 
       - name: GeoJSONL -> PMTiles (layer particelle, z12-18)
