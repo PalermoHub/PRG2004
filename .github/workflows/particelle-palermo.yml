@@ -21,7 +21,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q gdal-bin libsqlite3-dev zlib1g-dev
-          pip install -q remotezip
+          pip install -q remotezip shapely
           git clone -q --depth 1 https://github.com/felt/tippecanoe /tmp/tippecanoe
           make -C /tmp/tippecanoe -j"$(nproc)"
           sudo make -C /tmp/tippecanoe install
@@ -38,12 +38,13 @@ jobs:
             -sql "SELECT rowid AS fid, LTRIM(SUBSTR(gml_id,33,4),'0') AS Foglio, SUBSTR(gml_id,40) AS Paricella, msGeometry FROM CadastralParcel" \
             particelle.geojsonl G273_ple.gml
 
-      - name: GeoJSONL -> PMTiles (layer particelle, z12-18)
+      - name: GeoJSONL -> PMTiles (layer particelle + particelle_label, z12-18)
         run: |
           OUT=particelle/particelle.pmtiles
           # backup del vecchio file prima di sovrascriverlo
           [ -f "$OUT" ] && cp "$OUT" "particelle/particelle_backup_$(date +%Y%m%d).pmtiles"
-          tippecanoe -Z 12 -z 18 -l particelle --force -o "$OUT" particelle.geojsonl
+          # layer poligoni + layer punti etichetta (1 per particella): evita etichette doppie
+          python .github/scripts/build_particelle_tiles.py particelle.geojsonl "$OUT"
           echo "OUT=$OUT" >> "$GITHUB_ENV"
 
       - uses: actions/upload-artifact@v4
