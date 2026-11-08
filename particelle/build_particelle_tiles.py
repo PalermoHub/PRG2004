@@ -53,7 +53,7 @@ with open(lbl, "w", encoding="utf-8") as o, open(poly, "w", encoding="utf-8") as
         # sup_mq: area geodetica sulla geometria INTERA; letta dalla scheda (card.js)
         mq = round(abs(GEOD.geometry_area_perimeter(g)[0]), 1)
         sup.append((mq, fid))
-        op.write(json.dumps({"type": "Feature", "properties": {"Foglio": fg, "Paricella": pc, "sup_mq": mq},
+        op.write(json.dumps({"type": "Feature", "properties": {"fid": fid, "Foglio": fg, "Paricella": pc, "sup_mq": mq},  # fid: chiave per ricomporre i frammenti (tools/build_analisi_particelle.py)
                              "geometry": mapping(g)}, ensure_ascii=False) + "\n")
         # ponytail: punto interno al poligono (non il centroide: nei poligoni concavi puo' cadere fuori)
         o.write(json.dumps({
