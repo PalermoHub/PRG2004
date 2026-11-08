@@ -13,3 +13,6 @@ ZTO:  https://palermohub.github.io/PRG2004/ZTO/{z}/{x}/{y}.png
 Vincoli areali: https://palermohub.github.io/PRG2004/VA/{z}/{x}/{y}.png
 
 Vincoli lineari: https://palermohub.github.io/PRG2004/VL/{z}/{x}/{y}.png
+
+
+Particelle catastali (PMTiles con superficie `sup_mq`): https://palermohub.github.io/PRG2004/particelle/particelle.pmtiles — come rigenerarle: [particelle/WORKFLOW.md](particelle/WORKFLOW.md)
