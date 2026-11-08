@@ -21,7 +21,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q gdal-bin libsqlite3-dev zlib1g-dev
-          pip install -q remotezip shapely
+          pip install -q remotezip shapely pyproj
           git clone -q --depth 1 https://github.com/felt/tippecanoe /tmp/tippecanoe
           make -C /tmp/tippecanoe -j"$(nproc)"
           sudo make -C /tmp/tippecanoe install
